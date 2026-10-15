@@ -25,7 +25,7 @@ class _BalanceCardState extends State<BalanceCard> {
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
-            Color(0xFF0B6B3A),   // emerald tua
+            Color(0xFF0B6B3A),   
             Color(0xFF1BB55C),   // hijau terang
             Color(0xFF00D97E),   // hijau muda mengkilap
           ],

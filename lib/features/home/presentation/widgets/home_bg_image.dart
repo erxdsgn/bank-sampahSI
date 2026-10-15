@@ -20,7 +20,7 @@ class HomeBgImage extends StatelessWidget {
         height: double.infinity,
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) => Container(
-          color: const Color(0xFF1BB55C), // fallback warna hijau
+          color: const Color(0xFF1BB55C), 
         ),
       ),
     );
