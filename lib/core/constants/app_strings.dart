@@ -1,7 +1,7 @@
 class AppStrings {
-  static const appName = 'Bank Sampah Sahabat Ibu';
-  static const login = 'Masuk';
-  static const register = 'Daftar';
-  static const home = 'Beranda';
-  static const profile = 'Profil';
+  static const String appTitle = 'Event Handling';
+  static const String tapMe = 'Tap Gue';
+  static const String holdMe = 'Tahan Gue';
+  static const String pressMe = 'Tekan Gue';
+  static const String itemLabel = 'Item';
 }

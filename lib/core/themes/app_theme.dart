@@ -2,17 +2,12 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
 class AppTheme {
+  AppTheme._();
+
   static ThemeData light = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      brightness: Brightness.light,
-    ),
+    brightness: Brightness.light,
     scaffoldBackgroundColor: AppColors.background,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.primary,
-      foregroundColor: Colors.white,
-      elevation: 0,
-    ),
+    colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
   );
 }
