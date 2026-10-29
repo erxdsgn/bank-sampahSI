@@ -132,7 +132,7 @@ class _LoginPage extends State<LoginPage> {
                   label: "Password",
                   controller: _passwordController,
                   hintText: "Password minimal 8...",
-                  obscureText: true,
+                  // obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) return "Password tidak boleh kosong";
                     return null;
