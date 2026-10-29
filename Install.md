@@ -1,58 +1,98 @@
-from pathlib import Path
 
-content = """# Installation & Usage Guide
+# Instalasi — Bank Sampah Sahabat Ibu Mobile
 
-Panduan ini menjelaskan cara menyiapkan dan menjalankan aplikasi **Bank Sampah Sahabat Ibu Mobile** serta backend API Laravel untuk menguji fitur login.
+Panduan untuk menginstal, mengonfigurasi, dan menjalankan aplikasi mobile Bank Sampah Sahabat Ibu menggunakan Flutter dan backend API Laravel.
 
-## 1. Prasyarat
+## Daftar Isi
 
-Siapkan perangkat pengembangan dengan:
+- [Persyaratan](#1-persyaratan)
+- [Clone Repository](#2-clone-repository)
+- [Instalasi Flutter](#3-instalasi-flutter)
+- [Konfigurasi Backend Laravel](#4-konfigurasi-backend-laravel)
+- [Konfigurasi URL API](#5-konfigurasi-url-api)
+- [Menjalankan Aplikasi](#6-menjalankan-aplikasi)
+- [Pengujian Login](#7-pengujian-login)
+- [Troubleshooting](#8-troubleshooting)
+- [Keamanan](#9-keamanan)
 
-- Flutter SDK dan Dart SDK
-- Git
-- VS Code atau Android Studio
-- Chrome untuk menjalankan aplikasi Flutter Web, atau Android Emulator/perangkat Android
-- PHP, Composer, dan database yang dibutuhkan backend Laravel
+## 1. Persyaratan
 
-Verifikasi instalasi Flutter:
+Pastikan perangkat pengembangan sudah memiliki:
+
+- Flutter SDK dan Dart SDK.
+- Git.
+- Visual Studio Code atau Android Studio.
+- Google Chrome atau Android Emulator.
+- PHP dan Composer untuk backend Laravel.
+- Database yang sesuai dengan konfigurasi backend.
+
+Periksa instalasi Flutter:
 
 ```bash
 flutter doctor
 ```
 
-## 2. Clone Aplikasi Flutter
+Pastikan tidak ada masalah penting pada konfigurasi Flutter sebelum melanjutkan.
 
-Clone repository lalu masuk ke folder project:
+## 2. Clone Repository
+
+Clone repository aplikasi mobile:
 
 ```bash
 git clone https://github.com/erxdsgn/bank-sampahSI.git
 cd bank-sampahSI
 ```
 
-Untuk menggunakan branch integrasi login API:
+Pindah ke branch autentikasi API:
+
+```bash
+git switch api_auth_faboy
+```
+
+Jika branch belum tersedia secara lokal:
 
 ```bash
 git fetch origin
-git switch -c api_auth_faboy --track origin/api_auth_faboy
+git switch --track origin/api_auth_faboy
 ```
 
-Jika branch `api_auth_faboy` sudah ada secara lokal, cukup jalankan `git switch api_auth_faboy`.
+Periksa branch aktif:
 
-## 3. Install Dependency Flutter
+```bash
+git branch --show-current
+```
 
-Dari direktori utama project Flutter, jalankan:
+Pastikan hasilnya:
+
+```text
+api_auth_faboy
+```
+
+## 3. Instalasi Flutter
+
+Dari direktori utama project, jalankan:
 
 ```bash
 flutter pub get
 ```
 
-## 4. Siapkan Backend Laravel
+Periksa perangkat yang tersedia:
 
-Aplikasi login membutuhkan backend API yang menyediakan endpoint `POST /api/login`. Repository backend:
+```bash
+flutter devices
+```
+
+Jika dependency gagal diunduh, periksa koneksi internet dan versi Flutter yang terpasang.
+
+## 4. Konfigurasi Backend Laravel
+
+Aplikasi membutuhkan backend API yang menyediakan endpoint login.
+
+Repository backend:
 
 https://github.com/erxdsgn/bank-sampah-sahabat-ibu
 
-Clone repository backend di folder terpisah:
+Clone backend di direktori terpisah:
 
 ```bash
 git clone https://github.com/erxdsgn/bank-sampah-sahabat-ibu.git
@@ -60,94 +100,158 @@ cd bank-sampah-sahabat-ibu
 composer install
 ```
 
-Siapkan file environment dan database sesuai konfigurasi project. Jika belum ada file `.env` dan tersedia `.env.example`, salin menjadi `.env`, lalu atur kredensial database. Setelah konfigurasi selesai, jalankan perintah yang diperlukan:
+Siapkan file environment. Jika `.env` belum tersedia dan `.env.example` memang ada, salin file tersebut.
+
+Windows Command Prompt:
+
+```bat
+copy .env.example .env
+```
+
+Linux atau macOS:
+
+```bash
+cp .env.example .env
+```
+
+Konfigurasikan koneksi database pada file `.env`, lalu jalankan:
 
 ```bash
 php artisan key:generate
+```
+
+Jalankan migrasi hanya jika diperlukan dan sesuai kondisi database:
+
+```bash
 php artisan migrate
+```
+
+Nyalakan server Laravel:
+
+```bash
 php artisan serve
 ```
 
-Jalankan `php artisan migrate` hanya jika database lokal perlu dibuat atau diperbarui. Jika database dan tabel sudah disiapkan, ikuti prosedur backend yang digunakan tim.
+Secara default, server berjalan di:
 
-Secara default, server Laravel berjalan pada:
+```text
+http://127.0.0.1:8000
+```
 
-`http://127.0.0.1:8000`
+Pastikan endpoint berikut benar-benar tersedia pada backend:
 
-Pastikan endpoint `POST /api/login` tersedia dan backend menerima field `username` serta `password`.
+```text
+POST /api/login
+```
 
-## 5. Atur URL API pada Flutter
+Nama field request dan format respons harus sesuai dengan implementasi autentikasi backend dan aplikasi Flutter.
 
-Buka file:
+## 5. Konfigurasi URL API
 
-`lib/features/auth/login.dart`
+Buka file berikut pada project Flutter:
 
-Sesuaikan nilai `_baseUrl` berdasarkan platform:
+```text
+lib/features/auth/login.dart
+```
+
+Sesuaikan nilai `_baseUrl` dengan platform yang digunakan.
 
 | Platform | Base URL |
 |---|---|
 | Flutter Web / Chrome | `http://127.0.0.1:8000/api` |
 | Android Emulator | `http://10.0.2.2:8000/api` |
-| Perangkat Android fisik | `http://IP_LAPTOP:8000/api` |
+| Android fisik | `http://IP_LAPTOP:8000/api` |
 
-Untuk perangkat fisik, ganti `IP_LAPTOP` dengan IP lokal komputer yang menjalankan Laravel. Pastikan ponsel dan laptop berada di jaringan yang sama serta firewall mengizinkan koneksi.
+### Android Emulator
 
-**Penting:** pada Android Emulator, `127.0.0.1` mengarah ke emulator itu sendiri. Gunakan `10.0.2.2` untuk mengakses localhost komputer host.
+Gunakan alamat:
 
-Jika menjalankan Flutter Web dan browser menampilkan error CORS, konfigurasi CORS backend perlu mengizinkan origin aplikasi web.
+```text
+http://10.0.2.2:8000/api
+```
 
-## 6. Jalankan Aplikasi
+Alamat `10.0.2.2` digunakan emulator Android untuk mengakses localhost komputer host.
 
-Biarkan backend Laravel berjalan di terminal pertama:
+### Android Fisik
+
+Ganti `IP_LAPTOP` dengan alamat IP lokal komputer yang menjalankan Laravel.
+
+Pastikan ponsel dan komputer terhubung ke jaringan yang sama dan firewall mengizinkan koneksi.
+
+### Flutter Web
+
+Jika browser menampilkan error CORS, konfigurasi CORS pada backend Laravel perlu mengizinkan origin aplikasi web.
+
+Catatan: gunakan HTTP hanya untuk lingkungan pengembangan lokal. Untuk deployment, gunakan HTTPS.
+
+## 6. Menjalankan Aplikasi
+
+Jalankan backend Laravel pada terminal pertama:
 
 ```bash
 php artisan serve
 ```
 
-Buka terminal kedua pada folder project Flutter, lalu periksa perangkat yang tersedia:
+Pada terminal kedua, buka direktori project Flutter:
 
 ```bash
+flutter pub get
 flutter devices
 ```
 
-Jalankan aplikasi di Chrome:
+Jalankan aplikasi melalui Chrome:
 
 ```bash
 flutter run -d chrome
 ```
 
-Atau jalankan di emulator/perangkat yang terdeteksi:
+Atau jalankan pada emulator maupun perangkat yang tersedia:
 
 ```bash
 flutter run
 ```
 
-## 7. Cara Menggunakan Login
+Pastikan backend tetap aktif selama aplikasi membutuhkan API.
 
-1. Pastikan backend Laravel aktif dan dapat diakses dari platform yang digunakan.
-2. Jalankan aplikasi Flutter.
-3. Pada halaman login, masukkan username dan password akun yang valid di backend.
-4. Tekan tombol **Login**.
-5. Jika login berhasil, aplikasi menyimpan token autentikasi dan data pengguna menggunakan SharedPreferences, lalu membuka halaman utama.
-6. Jika login gagal, periksa kredensial, URL API, koneksi jaringan, dan log backend.
+## 7. Pengujian Login
+
+1. Pastikan backend Laravel berjalan.
+2. Pastikan URL API sesuai dengan platform.
+3. Buka aplikasi Flutter.
+4. Masukkan username dan password akun yang valid pada backend.
+5. Tekan tombol Login.
+6. Periksa respons aplikasi jika login berhasil atau gagal.
+
+Jika login berhasil, aplikasi seharusnya mengikuti alur autentikasi yang diterapkan pada project.
+
+Jika login gagal, periksa pesan error, request API, respons backend, dan log Laravel.
 
 ## 8. Troubleshooting
 
-| Kendala | Solusi yang bisa diperiksa |
+| Masalah | Solusi |
 |---|---|
-| Dependency Flutter gagal diunduh | Jalankan ulang `flutter pub get` dan periksa koneksi serta versi Flutter. |
-| API tidak bisa diakses | Pastikan `php artisan serve` aktif dan URL API sesuai platform. |
-| Login selalu gagal | Pastikan akun valid, nama field request sesuai, dan endpoint `POST /api/login` tersedia. |
-| Android Emulator tidak terhubung | Gunakan `10.0.2.2`, bukan `127.0.0.1`. |
-| Ponsel fisik tidak terhubung | Gunakan IP lokal laptop, jaringan yang sama, dan periksa firewall. |
-| Flutter Web terkena CORS | Periksa konfigurasi CORS pada backend Laravel. |
+| `flutter pub get` gagal | Periksa koneksi internet dan versi Flutter. |
+| Backend tidak bisa dijalankan | Periksa instalasi PHP, Composer, dan konfigurasi Laravel. |
+| File `.env` tidak ditemukan | Pastikan `.env.example` tersedia sebelum menyalinnya. |
+| Database error | Periksa kredensial database dan status server database. |
+| API tidak dapat diakses | Pastikan Laravel berjalan dan URL API benar. |
+| Login selalu gagal | Periksa kredensial, field request, endpoint, dan format respons API. |
+| Android Emulator gagal terhubung | Gunakan `10.0.2.2`, bukan `127.0.0.1`. |
+| Android fisik gagal terhubung | Periksa IP komputer, jaringan, dan firewall. |
+| Flutter Web mengalami CORS | Periksa konfigurasi CORS backend. |
 
-## Catatan Keamanan
+## 9. Keamanan
 
-- Jangan commit file `.env`, password, access token, atau kredensial rahasia.
-- Gunakan konfigurasi URL yang sesuai dengan lingkungan pengembangan.
-- Perintah backend dapat berbeda bergantung pada konfigurasi repository dan kondisi database.
-"""
-path = Path("/mnt/data/INSTALL.md")
-path.write_text(content, encoding="utf-8")
-print(f"Created {path} ({path.stat().st_size} bytes)")
+- Jangan commit file `.env` yang berisi kredensial.
+- Jangan menyimpan password atau token rahasia dalam repository.
+- Jangan mengunggah access token ke GitHub.
+- Gunakan HTTPS untuk komunikasi API pada lingkungan produksi.
+- Pastikan konfigurasi autentikasi dan penyimpanan token mengikuti kebutuhan keamanan aplikasi.
+
+---
+
+**Repository Mobile:** https://github.com/erxdsgn/bank-sampahSI
+
+**Branch:** `api_auth_faboy`
+
+**Repository Backend:** https://github.com/erxdsgn/bank-sampah-sahabat-ibu
