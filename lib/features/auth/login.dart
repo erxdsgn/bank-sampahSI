@@ -1,5 +1,6 @@
 
 import 'dart:convert';
+import 'register.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -437,7 +438,12 @@ class _LoginPageState extends State<LoginPage> {
                             baseline: TextBaseline.alphabetic,
                             child: GestureDetector(
                               onTap: () {
-                                // TODO: navigasi ke halaman daftar.
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const RegisterPage(),
+                                  ),
+                                );
                               },
                               child: const Text(
                                 'Daftar',
