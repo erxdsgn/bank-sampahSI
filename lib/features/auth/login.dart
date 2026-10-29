@@ -1,4 +1,10 @@
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../navigation/main_navigation.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,11 +21,18 @@ class _LoginPageState extends State<LoginPage> {
   static const _hint = Color(0xFFBDBDBD);
   static const _muted = Color(0xFF808080);
 
+  // Android Emulator + Laravel php artisan serve port 8000.
+  // Chrome: http://127.0.0.1:8000/api
+  // HP fisik: http://IP_LAPTOP:8000/api
+  static const String _baseUrl = 'http://127.0.0.1:8000/api';
+
   final _formLoginKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
   bool _rememberMe = false;
   bool _obscure = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -28,24 +41,119 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _login() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const MainNavigation()),
+  Future<void> _login() async {
+    if (_isLoading) return;
+
+    if (!_formLoginKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await http
+          .post(
+            Uri.parse('$_baseUrl/login'),
+            headers: const {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({
+              'username': _emailController.text.trim(),
+              'password': _passwordController.text,
+            }),
+          )
+          .timeout(const Duration(seconds: 20));
+
+      final decoded = jsonDecode(response.body);
+
+      if (decoded is! Map<String, dynamic>) {
+        throw const FormatException(
+          'Format respons server tidak valid.',
+        );
+      }
+
+      if (response.statusCode == 200 &&
+          decoded['status'] == 'success') {
+        final data = decoded['data'];
+
+        if (data is! Map<String, dynamic>) {
+          throw const FormatException(
+            'Data login tidak valid.',
+          );
+        }
+
+        final token = data['token'];
+        final user = data['user'];
+
+        if (token is! String ||
+            token.isEmpty ||
+            user is! Map<String, dynamic>) {
+          throw const FormatException(
+            'Token atau data pengguna tidak ditemukan.',
+          );
+        }
+
+        final prefs = await SharedPreferences.getInstance();
+
+        await prefs.setString('auth_token', token);
+        await prefs.setString('auth_user', jsonEncode(user));
+
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const MainNavigation(),
+          ),
+        );
+      } else {
+        _showMessage(
+          decoded['message']?.toString() ??
+              'Login gagal. Periksa akun Anda.',
+          isError: true,
+        );
+      }
+    } on FormatException catch (e) {
+      _showMessage(e.message, isError: true);
+    } catch (e) {
+      debugPrint('Login API error: $e');
+
+      _showMessage(
+        'Tidak dapat terhubung ke server. '
+        'Periksa URL API dan koneksi Anda.',
+        isError: true,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showMessage(String message, {bool isError = false}) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red.shade700 : _greenDark,
+      ),
     );
   }
 
   OutlineInputBorder _outline(Color color) => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: BorderSide(color: color, width: 1.2),
-  );
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: color, width: 1.2),
+      );
 
   InputDecoration _decoration(String hint, {Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(color: _hint, fontSize: 16),
       suffixIcon: suffix,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 24,
+        vertical: 20,
+      ),
       enabledBorder: _outline(_border),
       focusedBorder: _outline(_green),
       errorBorder: _outline(Colors.red.shade300),
@@ -54,12 +162,15 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _label(String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Text(
-      text,
-      style: const TextStyle(fontSize: 16, color: Color(0xFF222222)),
-    ),
-  );
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Color(0xFF222222),
+          ),
+        ),
+      );
 
   Widget _avatar() {
     return SizedBox(
@@ -75,8 +186,11 @@ class _LoginPageState extends State<LoginPage> {
               color: Color(0xFFD9D9D9),
               shape: BoxShape.circle,
             ),
-            // Ganti dengan ilustrasi: Image.asset('assets/images/login_avatar.png')
-            child: const Icon(Icons.person, size: 96, color: _greenDark),
+            child: const Icon(
+              Icons.person,
+              size: 96,
+              color: _greenDark,
+            ),
           ),
           Positioned(
             top: 12,
@@ -88,7 +202,11 @@ class _LoginPageState extends State<LoginPage> {
                 color: _greenDark,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.add, color: Colors.white, size: 28),
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 28,
+              ),
             ),
           ),
         ],
@@ -105,8 +223,7 @@ class _LoginPageState extends State<LoginPage> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight:
-                  MediaQuery.of(context).size.height -
+              minHeight: MediaQuery.of(context).size.height -
                   MediaQuery.of(context).padding.vertical,
             ),
             child: Form(
@@ -115,15 +232,20 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 16),
+
                   IconButton(
                     padding: EdgeInsets.zero,
                     alignment: Alignment.centerLeft,
                     icon: const Icon(Icons.arrow_back, size: 28),
                     onPressed: () => Navigator.maybePop(context),
                   ),
+
                   const SizedBox(height: 90),
+
                   Center(child: _avatar()),
+
                   const SizedBox(height: 16),
+
                   const Center(
                     child: Text(
                       'Login Akun',
@@ -134,38 +256,50 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 8),
+
                   const Center(
                     child: Text(
                       'Mulai Ubah Sampah Jadi Rupiah',
-                      style: TextStyle(fontSize: 16, color: _muted),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: _muted,
+                      ),
                     ),
                   ),
+
                   const SizedBox(height: 48),
 
-                  _label('Email'),
+                  _label('Email atau Username'),
+
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
-                    decoration: _decoration('contoh@gmail.com...'),
+                    autocorrect: false,
+                    decoration: _decoration(
+                      'Email atau username...',
+                    ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Email wajib diisi';
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Email atau username wajib diisi';
                       }
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 16),
 
                   _label('Password'),
+
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscure,
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => _login(),
                     decoration: _decoration(
-                      'Password minimal 8...',
+                      'Masukkan password...',
                       suffix: IconButton(
                         icon: Icon(
                           _obscure
@@ -173,7 +307,9 @@ class _LoginPageState extends State<LoginPage> {
                               : Icons.visibility_outlined,
                           color: const Color.fromARGB(255, 87, 87, 87),
                         ),
-                        onPressed: () => setState(() => _obscure = !_obscure),
+                        onPressed: () {
+                          setState(() => _obscure = !_obscure);
+                        },
                       ),
                     ),
                     validator: (value) {
@@ -186,6 +322,7 @@ class _LoginPageState extends State<LoginPage> {
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 12),
 
                   Row(
@@ -197,15 +334,23 @@ class _LoginPageState extends State<LoginPage> {
                           value: _rememberMe,
                           activeColor: _green,
                           checkColor: Colors.white,
-                          side: const BorderSide(color: _border, width: 1.2),
+                          side: const BorderSide(
+                            color: _border,
+                            width: 1.2,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(2),
                           ),
-                          onChanged: (v) =>
-                              setState(() => _rememberMe = v ?? false),
+                          onChanged: (value) {
+                            setState(() {
+                              _rememberMe = value ?? false;
+                            });
+                          },
                         ),
                       ),
+
                       const SizedBox(width: 16),
+
                       const Text(
                         'Ingat saya',
                         style: TextStyle(
@@ -213,18 +358,24 @@ class _LoginPageState extends State<LoginPage> {
                           color: Color(0xFF222222),
                         ),
                       ),
+
                       const Spacer(),
+
                       GestureDetector(
                         onTap: () {
-                          // TODO: navigasi ke halaman lupa password
+                          // TODO: halaman lupa password.
                         },
                         child: const Text(
                           'Lupa Password?',
-                          style: TextStyle(fontSize: 16, color: _green),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: _green,
+                          ),
                         ),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 56),
 
                   Container(
@@ -241,38 +392,52 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     child: ElevatedButton(
-                      onPressed: _login,
+                      onPressed: _isLoading ? null : _login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _green,
+                        disabledBackgroundColor: _green,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'Login',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : const Text(
+                              'Login',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                     ),
                   ),
+
                   const SizedBox(height: 16),
 
                   Center(
                     child: Text.rich(
                       TextSpan(
                         text: 'Belum memiliki akun? ',
-                        style: const TextStyle(fontSize: 16, color: _muted),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: _muted,
+                        ),
                         children: [
                           WidgetSpan(
                             alignment: PlaceholderAlignment.baseline,
                             baseline: TextBaseline.alphabetic,
                             child: GestureDetector(
                               onTap: () {
-                                // TODO: navigasi ke halaman daftar
+                                // TODO: navigasi ke halaman daftar.
                               },
                               child: const Text(
                                 'Daftar',
@@ -288,6 +453,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 24),
                 ],
               ),
