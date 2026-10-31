@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/app_colors.dart';
+import '../../../../core/app_colors.dart';
 
 class BalanceCard extends StatefulWidget {
   final String balance;
@@ -16,55 +16,61 @@ class BalanceCard extends StatefulWidget {
 }
 
 class _BalanceCardState extends State<BalanceCard> {
-  bool _visible = true;
+  bool _hidden = false;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.greenDeep,
-        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFF0B6B3A),   
+            Color(0xFF1BB55C),   
+            Color(0xFF00D97E),   
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Saldo Tabungan',
-            style: TextStyle(fontSize: 13, color: AppColors.white),
-          ),
-          const SizedBox(height: 2),
+          const Text('Saldo Tabungan',
+              style: TextStyle(color: Colors.white70, fontSize: 13)),
+          const SizedBox(height: 6),
           Row(
             children: [
               Text(
-                _visible ? widget.balance : 'Rp ••••••••',
+                _hidden ? '••••••••' : widget.balance,
                 style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.white,
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(width: 10),
               GestureDetector(
-                onTap: () => setState(() => _visible = !_visible),
+                onTap: () => setState(() => _hidden = !_hidden),
                 child: Icon(
-                  _visible
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                  color: AppColors.white,
+                  _hidden
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  color: Colors.white,
                   size: 22,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Container(height: 1.2, color: AppColors.green),
-          const SizedBox(height: 10),
-          Text(
-            'No. rek ${widget.accountNumber}',
-            style: const TextStyle(fontSize: 13, color: AppColors.white),
+          const SizedBox(height: 12),
+          Container(
+            height: 1,
+            color: Colors.white.withValues(alpha: 0.25),
           ),
+          const SizedBox(height: 10),
+          Text('No. rek ${widget.accountNumber}',
+              style: const TextStyle(color: Colors.white, fontSize: 13)),
         ],
       ),
     );

@@ -4,11 +4,12 @@ import 'package:provider/provider.dart';
 import 'core/app_colors.dart';
 
 import 'features/auth/presentation/providers/auth_provider.dart';
-// import 'features/home/providers/home_provider.dart';
+import 'features/home/providers/home_provider.dart';
 import 'navigation/main_navigation.dart';
 
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
+import 'features/home/pages/home_page.dart';
 
 import 'core/app_routes.dart';
 
@@ -17,7 +18,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        // ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => HomeProvider()),
       ],
       child: const MyApp(),
     ),

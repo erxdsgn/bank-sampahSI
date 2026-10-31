@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../core/app_colors.dart';
+import '../../core/app_colors.dart';
 
-// Import halaman-halaman
-// import '../features/home/pages/home_page.dart';
+import '../features/home/pages/home_page.dart';
 
 // import '../features/product/pages/product_page.dart';
 // import '../features/history/pages/history_page.dart';
@@ -20,10 +19,10 @@ class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    const Center(child: Text("Beranda")),
-    const Center(child: Text("Produk")),
-    const Center(child: Text("Riwayat")),
-    const Center(child: Text("Profil")),
+    const HomePage(),
+    const Center(child: Text("Halaman Produk Akan Segera Hadir!")),
+    const Center(child: Text("Halaman Riwayat Akan Segera Hadir")),
+    const Center(child: Text("Halaman Profil Akan Segera Hadir")),
   ];
 
   @override

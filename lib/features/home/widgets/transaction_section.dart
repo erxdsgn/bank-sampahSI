@@ -23,7 +23,7 @@ class TransactionSection extends StatelessWidget {
             title: 'Riwayat Transaksi',
             bold: false,
             padding: const EdgeInsets.fromLTRB(15, 14, 15, 6),
-            onTap: () {}, // TODO: ke halaman riwayat
+            onTap: () {}, 
           ),
           const _TicketDivider(),
           Padding(
