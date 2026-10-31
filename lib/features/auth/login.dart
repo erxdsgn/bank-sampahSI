@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 import '../navigation/main_navigation.dart';
+import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -20,6 +25,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _rememberMe = false;
   bool _obscure = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -28,11 +34,67 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _login() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const MainNavigation()),
-    );
+  Future<void> _login() async {
+    // 1. Cek validasi input form (cegah pindah jika kosong)
+    if (!_formLoginKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // 2. Kirim request login ke backend Laravel
+      final url = Uri.parse('http://127.0.0.1:8000/api/login');
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({
+          'username': _emailController.text
+              .trim(), // Mendukung input email atau username
+          'password': _passwordController.text,
+        }),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+
+      if (response.statusCode == 200) {
+        // Login berhasil, arahkan ke halaman utama
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainNavigation()),
+        );
+      } else {
+        // Ambil pesan dari Laravel, lalu sesuaikan teksnya jika belum punya akun / salah
+        String pesanError = data['message'] ?? 'Login gagal.';
+
+        if (pesanError.contains('wajib') ||
+            pesanError.contains('tidak ditemukan') ||
+            pesanError.contains('salah')) {
+          pesanError = 'Anda masih belum memiliki akun atau data salah.';
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(pesanError), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Terjadi kesalahan koneksi: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   OutlineInputBorder _outline(Color color) => OutlineInputBorder(
@@ -75,7 +137,6 @@ class _LoginPageState extends State<LoginPage> {
               color: Color(0xFFD9D9D9),
               shape: BoxShape.circle,
             ),
-            // Ganti dengan ilustrasi: Image.asset('assets/images/login_avatar.png')
             child: const Icon(Icons.person, size: 96, color: _greenDark),
           ),
           Positioned(
@@ -143,15 +204,15 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 48),
 
-                  _label('Email'),
+                  _label('Email / Username'),
                   TextFormField(
                     controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.text,
                     textInputAction: TextInputAction.next,
                     decoration: _decoration('contoh@gmail.com...'),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Email wajib diisi';
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Email atau username wajib diisi';
                       }
                       return null;
                     },
@@ -234,14 +295,14 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: _green.withOpacity(0.35),
+                          color: _green.withValues(alpha: 0.35),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     child: ElevatedButton(
-                      onPressed: _login,
+                      onPressed: _isLoading ? null : _login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _green,
                         foregroundColor: Colors.white,
@@ -250,13 +311,15 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'Login',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              'Login',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -272,7 +335,12 @@ class _LoginPageState extends State<LoginPage> {
                             baseline: TextBaseline.alphabetic,
                             child: GestureDetector(
                               onTap: () {
-                                // TODO: navigasi ke halaman daftar
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const RegisterPage(),
+                                  ),
+                                );
                               },
                               child: const Text(
                                 'Daftar',
