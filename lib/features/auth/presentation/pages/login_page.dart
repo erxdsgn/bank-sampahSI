@@ -1,3 +1,4 @@
+import 'package:bank_sampah/features/auth/presentation/pages/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -45,7 +46,9 @@ class _LoginPage extends State<LoginPage> {
               children: [
                 
                 IconButton(
-                  onPressed: () => Navigator.pop(context), 
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.register);
+                  },
                   icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
