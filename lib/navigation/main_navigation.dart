@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/app_colors.dart';
 
 import '../features/home/pages/home_page.dart';
+import '../features/product/pages/product_page.dart';
 
 // import '../features/product/pages/product_page.dart';
 // import '../features/history/pages/history_page.dart';
@@ -20,7 +21,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
   final List<Widget> _pages = [
     const HomePage(),
-    const Center(child: Text("Halaman Produk Akan Segera Hadir!")),
+    const ProductPage(),
     const Center(child: Text("Halaman Riwayat Akan Segera Hadir")),
     const Center(child: Text("Halaman Profil Akan Segera Hadir")),
   ];
