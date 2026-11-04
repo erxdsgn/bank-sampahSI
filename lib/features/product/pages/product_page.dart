@@ -4,11 +4,16 @@ import 'package:provider/provider.dart';
 import '../../../../core/app_colors.dart';
 import '../providers/product_provider.dart';
 import '../widgets/product_card.dart';
-import '../../../../core/app_routes.dart';
+import 'product_detail_page.dart'; 
 
-class ProductPage extends StatelessWidget {
+class ProductPage extends StatefulWidget {
   const ProductPage({super.key});
 
+  @override
+  State<ProductPage> createState() => _ProductPageState();
+}
+
+class _ProductPageState extends State<ProductPage> {
   @override
   Widget build(BuildContext context) {
     // Ambil data dari Provider
@@ -16,25 +21,13 @@ class ProductPage extends StatelessWidget {
 
     return Column(
       children: [
+        // ═══ 1. HEADER HIJAU (AppBar Custom) ═══
         Container(
           width: double.infinity,
           color: AppColors.green,
           padding: const EdgeInsets.only(top: 50, bottom: 20, left: 16, right: 16),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Positioned(
-              left : 0,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.home);
-                },
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-            ),
-            const Text(
+          child: const Center(
+            child: Text(
               "Produk Daur Ulang",
               style: TextStyle(
                 fontSize: 16,
@@ -42,9 +35,8 @@ class ProductPage extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-          ],
+          ),
         ),
-      ),
 
         // ═══ 2. SEARCH BAR ═══
         Padding(
@@ -69,28 +61,47 @@ class ProductPage extends StatelessWidget {
           ),
         ),
 
-        // grid produk 
+        // ═══ 3. GRID PRODUK (2 KOLOM) ═══
         Expanded(
           child: GridView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, 
-              crossAxisSpacing: 16, 
-              mainAxisSpacing: 16, 
-              childAspectRatio: 0.75, 
+              crossAxisCount: 2, // 2 Kolom
+              crossAxisSpacing: 16, // Jarak antar kolom
+              mainAxisSpacing: 16, // Jarak antar baris
+              childAspectRatio: 0.75, // Rasio kotak produk
             ),
             itemCount: productProvider.products.length,
             itemBuilder: (context, index) {
               final product = productProvider.products[index];
-              return ProductCard(
-                name: product.name,
-                price: product.price,
-                imagePath: product.imagePath,
+              
+              return GestureDetector(
+                onTap: () {
+                  // MENGGUNAKAN SHOW MODAL BOTTOM SHEET UNTUK POP-UP
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true, // Agar pop-up bisa tinggi
+                    backgroundColor: Colors.transparent, // Agar sudut melengkung terlihat
+                    builder: (context) {
+                      return Container(
+                        // Tinggi pop-up 85% dari layar HP
+                        height: MediaQuery.of(context).size.height * 0.85, 
+                        child: ProductDetailPage(product: product),
+                      );
+                    },
+                  );
+                },
+                child: ProductCard(
+                  name: product.name,
+                  price: product.price,
+                  imagePath: product.imagePath,
+                ),
               );
             },
           ),
         ),
         
+        // Spasi di bawah agar tidak tertutup Bottom Navigation Bar
         const SizedBox(height: 80),
       ],
     );
