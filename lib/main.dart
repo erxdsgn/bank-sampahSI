@@ -11,6 +11,7 @@ import 'navigation/main_navigation.dart';
 
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
+import 'features/help_center/presentation/pages/help_center_page.dart';
 
 import 'core/app_routes.dart';
 
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
         AppRoutes.login: (context) => const LoginPage(),
         AppRoutes.register: (context) => const RegisterPage(),
         AppRoutes.home: (context) => const MainNavigation(),
+        AppRoutes.helpCenter: (context) => const HelpCenterPage(),
       },
     );
   }

@@ -35,7 +35,15 @@ class HomeHeader extends StatelessWidget {
           ),
           const _CircleIcon(icon: Icons.emoji_events_outlined),
           const SizedBox(width: 10),
-          const _CircleIcon(icon: Icons.headset_mic_outlined),
+
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/help-center');
+            },
+            child: const CircleAvatar(
+              child: const _CircleIcon(icon: Icons.headset_mic_outlined),
+            ),
+          ),
         ],
       ),
     );
