@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/app_colors.dart';
+import '../../../core/app_routes.dart';
 
 class QuickMenu extends StatelessWidget {
   const QuickMenu({super.key});
@@ -20,13 +21,17 @@ class QuickMenu extends StatelessWidget {
           icon: Icons.shopping_bag,
           color: AppColors.accentYellow,
           label: 'Produk\nDaur Ulang',
-          onTap: () {}, // TODO
+          onTap: () {
+            Navigator.pushNamed(context, AppRoutes.productList);
+          },
         ),
         _QuickMenuItem(
           icon: Icons.sell,
           color: AppColors.green,
           label: 'Harga\nSampah',
-          onTap: () {}, // TODO
+          onTap: () {
+            Navigator.pushNamed(context, AppRoutes.priceList);
+          },
         ),
         _QuickMenuItem(
           icon: Icons.edit_calendar,
