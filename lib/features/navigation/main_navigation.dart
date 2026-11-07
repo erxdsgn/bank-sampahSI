@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../../core/app_colors.dart';
+import '../../views/artikel_event_page.dart';
 
 /// Halaman utama dengan bottom navbar: Beranda, Produk, Riwayat, Profile.
 /// Dipanggil setelah login berhasil:
@@ -15,7 +17,7 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
 
-  // Semua tab sekarang menggunakan halaman polos (_EmptyPage)
+  // Semua tab sekarang menggunakan halaman polos (_EmptyPage), kecuali HomeTab
   final List<Widget> _pages = const [
     HomeTab(),
     ProdukTab(),
@@ -154,11 +156,52 @@ class _EmptyPage extends StatelessWidget {
   }
 }
 
+// =========================================================
+// WIDGET TAB HALAMAN
+// =========================================================
+
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
 
   @override
-  Widget build(BuildContext context) => const _EmptyPage('Beranda');
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Ini Halaman Beranda',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 20),
+            // Tombol untuk memanggil halaman event
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.green,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ArtikelEventPage(),
+                  ),
+                );
+              },
+              child: const Text(
+                'Lihat Artikel & Event',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class ProdukTab extends StatelessWidget {
