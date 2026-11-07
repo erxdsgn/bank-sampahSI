@@ -4,6 +4,7 @@ import '../../core/app_colors.dart';
 
 import '../features/home/pages/home_page.dart';
 import '../features/product/pages/product_page.dart';
+import '../features/profile/presentation/pages/profile_page.dart';
 
 // import '../features/history/pages/history_page.dart';
 // import '../features/profile/pages/profile_page.dart';
@@ -22,7 +23,7 @@ class _MainNavigationState extends State<MainNavigation> {
     const HomePage(),
     const ProductPage(),
     const Center(child: Text("Halaman Riwayat Akan Segera Hadir")),
-    const Center(child: Text("Halaman Profil Akan Segera Hadir")),
+    const ProfilePage(),
   ];
 
   @override
