@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
 import '../widgets/balance_card.dart';
 import '../widgets/home_bg_image.dart';       // ← ganti
 import '../widgets/home_header.dart';
@@ -33,7 +34,14 @@ class HomePage extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const HomeHeader(userName: 'ERIX AGUNG WIBOWO'),
+                HomeHeader(
+                  userName: 'ERIX AGUNG WIBOWO',
+                  onLeaderboardTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const LeaderboardPage(),
+                    ),
+                  ),
+                ),
                 Transform.translate(
                   offset: Offset.zero,
                   child: Stack(

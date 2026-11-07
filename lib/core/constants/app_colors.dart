@@ -17,4 +17,9 @@ class AppColors {
   static const Color menuIconBg = Color(0xFFC6F0D6);
   static const Color homeTextPrimary = Color(0xFF1A1A1A);
   static const Color homeTextSecondary = Color(0xFF757575);
+
+  // Leaderboard
+  static const Color medalGold = Color(0xFFFFB300);
+  static const Color medalSilver = Color(0xFF9E9E9E);
+  static const Color medalBronze = Color(0xFFCD7F32);
 }

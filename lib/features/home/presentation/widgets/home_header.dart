@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 
 class HomeHeader extends StatelessWidget {
   final String userName;
+  final VoidCallback? onLeaderboardTap;
 
-  const HomeHeader({super.key, required this.userName});
+  const HomeHeader({
+    super.key,
+    required this.userName,
+    this.onLeaderboardTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +38,10 @@ class HomeHeader extends StatelessWidget {
               ],
             ),
           ),
-          const _CircleIcon(icon: Icons.emoji_events_outlined),
+          _CircleIcon(
+            icon: Icons.emoji_events_outlined,
+            onTap: onLeaderboardTap,
+          ),
           const SizedBox(width: 10),
           const _CircleIcon(icon: Icons.headset_mic_outlined),
         ],
@@ -44,22 +52,27 @@ class HomeHeader extends StatelessWidget {
 
 class _CircleIcon extends StatelessWidget {
   final IconData icon;
-  const _CircleIcon({required this.icon});
+  final VoidCallback? onTap;
+  const _CircleIcon({required this.icon, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.18),
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.25),
-          width: 1,
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.18),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.25),
+            width: 1,
+          ),
         ),
+        child: Icon(icon, color: Colors.white, size: 22),
       ),
-      child: Icon(icon, color: Colors.white, size: 22),
     );
   }
 }
